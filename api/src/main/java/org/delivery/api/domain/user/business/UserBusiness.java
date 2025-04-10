@@ -1,6 +1,8 @@
 package org.delivery.api.domain.user.business;
 
 import org.delivery.api.common.annotation.Business;
+import org.delivery.api.domain.token.business.TokenBusiness;
+import org.delivery.api.domain.token.controller.model.TokenResponse;
 import org.delivery.api.domain.user.controller.model.UserLoginRequest;
 import org.delivery.api.domain.user.controller.model.UserRegisterRequest;
 import org.delivery.api.domain.user.controller.model.UserResponse;
@@ -16,9 +18,9 @@ public class UserBusiness {
 
 	private final UserService userService;
 	private final UserConverter userConverter;
+	private final TokenBusiness tokenBusiness;
 
 	public UserResponse register(UserRegisterRequest request) {
-
 		var entity = userConverter.toEntity(request);
 		var newEntity = userService.register(entity);
 		var response = userConverter.toResponse(newEntity);
@@ -37,10 +39,10 @@ public class UserBusiness {
 	 * 3. token 생성
 	 * 4. token response
 	 */
-	public UserResponse login(@Valid UserLoginRequest body) {
+	public TokenResponse login(@Valid UserLoginRequest body) {
 		var userEntity = userService.login(body.getEmail(), body.getPassword());
-
 		// TODO 토큰 생성 로직으로 변경하기
-		return userConverter.toResponse(userEntity);
+		var tokenResponse = tokenBusiness.issueToken(userEntity);
+		return tokenResponse;
 	}
 }
